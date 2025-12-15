@@ -60,10 +60,58 @@ This bot has been converted from Baileys to whatsapp-web.js. Key differences:
 
 ### Prerequisites
 - Node.js >= 18
-- Google Chrome or Chromium browser
+- Google Chrome or Chromium browser (or Puppeteer will download one)
 - Internet connection for WhatsApp Web
 
-### Setup Steps
+### Quick Start (Digital Ocean VPS / Ubuntu / Debian)
+
+**For Digital Ocean droplets and Ubuntu/Debian VPS**, Chrome is not installed by default. Follow these steps:
+
+1. **Install Chrome (Recommended)**
+   ```bash
+   # Add Google Chrome repository
+   wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+   sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+   
+   # Update and install Chrome
+   sudo apt-get update
+   sudo apt-get install -y google-chrome-stable
+   ```
+
+2. **OR Install Puppeteer dependencies** (if using bundled Chromium)
+   ```bash
+   sudo apt-get install -y \
+     ca-certificates fonts-liberation libappindicator3-1 libasound2 \
+     libatk-bridge2.0-0 libatk1.0-0 libc6 libcairo2 libcups2 \
+     libdbus-1-3 libexpat1 libfontconfig1 libgbm1 libgcc1 \
+     libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 \
+     libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 \
+     libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 \
+     libxi6 libxrandr2 libxrender1 libxss1 libxtst6 lsb-release wget xdg-utils
+   ```
+
+3. **Clone and setup the bot**
+   ```bash
+   git clone <repository-url>
+   cd wa-bot
+   
+   # Install Node.js dependencies
+   npm install
+   
+   # Configure environment
+   cp config/example.env .env
+   nano .env  # Edit your settings
+   
+   # Start the bot
+   npm start
+   ```
+
+4. **Access the dashboard**
+   - Open `http://YOUR_VPS_IP:3000` in your browser
+   - Scan the QR code with WhatsApp mobile app
+   - Wait for "Connected" status
+
+### Setup Steps (General)
 
 1. **Clone the repository**
    ```bash
@@ -76,7 +124,7 @@ This bot has been converted from Baileys to whatsapp-web.js. Key differences:
    # If Chrome/Chromium is already installed on your system
    PUPPETEER_SKIP_DOWNLOAD=true npm install
    
-   # Otherwise, let Puppeteer download Chromium
+   # Otherwise, let Puppeteer download Chromium (requires dependencies above)
    npm install
    ```
 
@@ -336,16 +384,74 @@ The bot has been tested with:
 
 ## Troubleshooting
 
-### QR Code Not Showing
+### QR Code Not Showing (Digital Ocean VPS / Ubuntu)
+
+**Problem**: `/qr` endpoint shows "QR not available" or QR doesn't appear in dashboard
+
+**Root Cause**: Chrome/Chromium is not installed or browser failed to launch
+
+**Solutions**:
+
+1. **Check server logs** for initialization errors:
+   ```bash
+   # Look for errors in logs
+   tail -f logs/app.log
+   # or
+   pm2 logs wa-bot
+   ```
+
+2. **Install Chrome on Digital Ocean VPS** (Ubuntu/Debian):
+   ```bash
+   wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+   sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+   sudo apt-get update
+   sudo apt-get install -y google-chrome-stable
+   
+   # Restart the bot
+   pm2 restart wa-bot
+   # or
+   npm start
+   ```
+
+3. **OR Install Puppeteer dependencies** (if using bundled Chromium):
+   ```bash
+   sudo apt-get install -y ca-certificates fonts-liberation \
+     libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 \
+     libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 \
+     libgbm1 libgcc1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 \
+     libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 \
+     libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 \
+     libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 \
+     libxtst6 lsb-release wget xdg-utils
+   ```
+
+4. **Verify Chrome is detected**:
+   ```bash
+   which google-chrome
+   # or
+   which chromium-browser
+   ```
+
+5. **After installing Chrome**, restart the bot and check logs:
+   - You should see: `✅ Auto-detected Chrome: /usr/bin/google-chrome-stable`
+   - Then: `📱 QR Code received, generating...`
+   - Finally: `✅ QR code saved`
+
+6. **Access the QR code**:
+   - Dashboard: `http://YOUR_VPS_IP:3000`
+   - Direct: `http://YOUR_VPS_IP:3000/qr`
+
+### QR Code Not Showing (General)
 
 **Problem**: QR code doesn't appear in the dashboard
 
 **Solutions**:
 1. Check if the bot is initializing: Look for "Initializing WhatsApp bot..." in logs
-2. Wait a few seconds for QR generation
+2. Wait 10-15 seconds for QR generation after bot starts
 3. Refresh the browser
 4. Check `qr.txt` file exists and has content
 5. Ensure internet connection is active
+6. Check browser console for errors (F12)
 
 ### Connection Keeps Dropping
 
@@ -371,13 +477,13 @@ The bot has been tested with:
 
 ### Chrome/Puppeteer Issues
 
-**Problem**: "Failed to launch the browser process"
+**Problem**: "Failed to launch the browser process" or "spawn ENOENT"
 
 **Solutions**:
-1. Install Chrome/Chromium: `sudo apt-get install google-chrome-stable`
-2. Update `executablePath` in `lib/whatsapp.js`
-3. Check Chrome is accessible: `which google-chrome`
-4. Ensure required dependencies are installed
+1. **Digital Ocean VPS**: Install Chrome (see "QR Code Not Showing" above)
+2. **Check Chrome path**: `which google-chrome`
+3. **Set custom path** in `.env`: `CHROME_PATH=/usr/bin/google-chrome-stable`
+4. **Ensure dependencies installed** (see installation section)
 
 ### High Memory Usage
 
