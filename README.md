@@ -135,16 +135,23 @@ APP_VERSION=2.0.0
 
 ### Chrome/Chromium Configuration
 
-The bot uses Puppeteer to run a headless Chrome browser. It automatically looks for Chrome at `/usr/bin/google-chrome`. 
+The bot uses Puppeteer to run a headless Chrome browser. By default, it looks for Chrome at `/usr/bin/google-chrome`. 
 
-To use a different Chrome location, edit `lib/whatsapp.js` and change the `executablePath`:
+**Auto-detection**: The bot will try to find Chrome automatically if `CHROME_PATH` is not set.
 
-```javascript
-puppeteer: {
-  headless: true,
-  executablePath: '/path/to/your/chrome',  // Update this
-  args: [...]
-}
+**Manual configuration**: Set the `CHROME_PATH` environment variable in your `.env` file:
+
+```env
+CHROME_PATH=/usr/bin/google-chrome
+# or
+CHROME_PATH=/usr/bin/chromium-browser
+```
+
+**Finding Chrome on your system**:
+```bash
+which google-chrome
+which chromium-browser
+which chromium
 ```
 
 ## API Usage
@@ -204,6 +211,11 @@ curl -X POST http://localhost:3000/send-media \
 - Videos (MP4, AVI, MOV)
 - Audio (MP3, OGG, WAV)
 - Documents (PDF, DOC, XLS, etc.)
+
+**File Size Limits:**
+- Maximum recommended: 50MB
+- Larger files may cause memory issues
+- The bot will log a warning for files >50MB
 
 ### Check Status
 
