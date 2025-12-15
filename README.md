@@ -135,11 +135,20 @@ APP_VERSION=2.0.0
 
 ### Chrome/Chromium Configuration
 
-The bot uses Puppeteer to run a headless Chrome browser. By default, it looks for Chrome at `/usr/bin/google-chrome`. 
+The bot uses Puppeteer to run a headless Chrome browser with **automatic Chrome detection**.
 
-**Auto-detection**: The bot will try to find Chrome automatically if `CHROME_PATH` is not set.
+**Auto-detection** (default): The bot automatically searches for Chrome/Chromium in common locations:
+- `/usr/bin/google-chrome-stable`
+- `/usr/bin/google-chrome`
+- `/usr/bin/chromium-browser`
+- `/usr/bin/chromium`
+- `/snap/bin/chromium`
+- macOS: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome`
+- Windows: `C:\Program Files\Google\Chrome\Application\chrome.exe`
 
-**Manual configuration**: Set the `CHROME_PATH` environment variable in your `.env` file:
+**Fallback**: If no Chrome installation is found, Puppeteer will use its bundled Chromium (downloaded automatically on first run).
+
+**Manual configuration** (optional): Override auto-detection by setting `CHROME_PATH` in your `.env` file:
 
 ```env
 CHROME_PATH=/usr/bin/google-chrome

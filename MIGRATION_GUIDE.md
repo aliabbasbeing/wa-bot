@@ -97,16 +97,16 @@ sudo apt-get install google-chrome-stable
 sudo apt-get install chromium-browser
 ```
 
-### 5. Update Chrome Path (if needed)
+### 5. Chrome Auto-Detection
 
-If Chrome is in a non-standard location, update `lib/whatsapp.js`:
+The bot now **automatically detects Chrome/Chromium** on your system. No manual configuration needed!
 
-```javascript
-puppeteer: {
-  headless: true,
-  executablePath: '/your/custom/path/to/chrome',  // Update this line
-  args: [...]
-}
+If Chrome is not found, Puppeteer will download its bundled Chromium automatically.
+
+**Optional**: Override auto-detection by setting `CHROME_PATH` in `.env`:
+
+```env
+CHROME_PATH=/your/custom/path/to/chrome
 ```
 
 ### 6. Environment Configuration
